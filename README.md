@@ -1,1 +1,0 @@
-# RNA_prac_course_2025
