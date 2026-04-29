@@ -1,0 +1,65 @@
+# Tilman Georgi, SpeciesDataset 9, Ile, 30/06/2025
+## Step-by-Step Documentation
+
+# Working Directory:
+# Versions of applied tools:
+    - tRNAscan-SE Version 2.0.12
+    - ViennaRNA Package via conda environment (RNAalifold Version 2.6.4; 2.7.0)
+    - CheckM2 via conda environment Version 1.1.0
+    - LocARNA Version 2.0.1
+    - Visual Studio Code Version 1.101.1
+    - Python Version 3.13.2
+    - Python Version 3.10.18 (to run ete3)
+    - required Python packages in activated conda environment: pandas, numpy, matplotlib, seaborn
+
+# used scripts
+    - config.py , one_BVBRC_genome_statistic.py
+    - two_run_trnascan.py , two_plots.py
+    - three_parser.py , three_feature_extraction.py , three_filter.py , three_fasta_extractor , three_data_inspection_noncanonical.py , three_calculate_ed.py , three_recovery_with_RNAfold.py , three_mlocarna.py , three_heatmap
+    - four_metadatatable.py , four_treecreation.py
+
+#####################################################################################
+# Step 1
+# (load genomes, run genome statistics for tatget species)
+#####################################################################################
+    - open Visual Studio Code, activate required conda environment and Python 3.13
+    - run confiq.py (located in Base Directory) to establish structure
+    - copy Genome Sequence SpeciesDataset9 from prak17 (/scr/prak17/datasets2025) to data/genomes (FASTA-Files)
+    - manually create bvbrc_trna.tsv with SpeciesIDs and predicted tRNA numbers from https://www.bv-brc.org/
+    - locate genome_quality_report.tsv and bvbrc_trna.tsv in data/
+    - run one_BVBRC_genome_statistics.py
+    - safe plots manually to preferred directory, when they appear as GUI
+
+#####################################################################################
+# Step 2
+# (run tRNAscan-SE to predict tRNAs in target archaeal genomes to obtain global statistics)
+#####################################################################################
+    - run two_run_trnascan.py (data safed in output/trnascan_output as *.main, *.struct, *.detail)
+
+####################################################################################
+# Step 3
+# (Identify "canonical" structure of tRNAs and obtain best tRNA candidates from tRNAscan-SE predictions across target genomes (filter pipeline), recovery of rejected candidates with low ED score, running mLocarna for alignment and consensus structures)
+#####################################################################################
+    - run three_parser.py (output safed in output/trnascan_output , creates datasetfile ALL_combined_mainstruct.txt)
+    - run two_plots.py (creates IntronHeatmap and Overview plots per Superphyle for step 2, safed in output/plos)
+    - run three_feature_extraction (converts secondary structure to standard dot-bracket-notation, creates short form of dot-bracket-notation, identifies number of stems, applies this features to ALL_combined_mainstruct.txt and creates ALL_noncanonical_mainstruct.txt for out-ss candidates)
+    - run three_filter.py (filterpipeline, filter thresholds can be adapted manually at the beginning of the script, set filters: <=110nts, only 4/5 stems, no pseudogenes, Anticodon loop 7-14nts, D-Loop <=20nts, T-Loop <=10nts, V-Loop <=6nts, IsotopeScore >=60)
+    - run three_fasta_extractor (extracts sequences and sec. structure of best candidates, safes them in Fasta-format for mLocarna, structured by Anticodon and Structure Type and StemCount)
+    - run three_data_inspection_noncanonical.py (data structure checkup for ALL_noncanonical_mainstruct.txt before recovering pipeline for rejected candidates)
+    - run three_calculate_ed.py (calculate ED scores for rejected candidates with RNA package from ViennaRNA, results safed in output/ed_scores)
+    - run three_recovery_with_RNAfold.py
+    - run three_mlocarna.py (obtain alignment and consensus structure of best tRNA candidates.)
+    - run three_heatmap.py (Summary of best and recovered candidates per anticodon for all assigned species as heatmap)
+
+#####################################################################################
+# Step 4
+# (Inferring the phylogenetic distribution of tRNAs and CCA enzymes across your archaeal species)
+#####################################################################################
+    - ensure that CCA_enzymes is directory in data/ , including documents (per Superphyla) with information about CCA_enzymes: csv format: SpeciedID CCA1 CCA2 (CCA columns with entries 0 or 1 if applies)
+    - run four_metadatatable.py (creates metadata table that integrates following data for assigned tRNA (here: Ile) and species dataset: corresponding species ID, corresponding species name, Superphylum, presence/absence of encoded CCA-end sequence in predicted tRNA, presence/absence of of CCA1/CCA2/CCA1+2 enzymes across species)
+    - search for required tRNA Anticodon tree (and alignment data) in output/mlocarna_results/ 'tRNA_***_*stem_candidates/results/result.tree
+    - change environment to Python environment Version 3.10.18 to run ete3
+    - create phylogenetic tree and heatmap displaying presence/absence of CCA1/CCA2/CCA1+2 with using script four_treecreation.py, change path to required result.tree in TREE_FILE and path to required metadata-table in METADATA; Trees safe in PLOT_DIR/trees
+
+#####################################################################################
+# Programming: Tilman Georgi, Coding: Tilman Georgi, ChatGPT and Claude AI (used for creation of fallback structures, Debugging)
